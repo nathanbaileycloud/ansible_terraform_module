@@ -1,0 +1,10 @@
+---
+- name: NTT Interview Test Assignment
+  hosts: localhost
+  gather_facts: false
+  connection: local
+  vars:
+        ansible_python_interpreter: /usr/bin/python3
+  tasks:
+    - import_role:
+       name: terraform

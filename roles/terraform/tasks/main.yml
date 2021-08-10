@@ -1,0 +1,33 @@
+---
+- name: Executing Terraform
+  terraform:
+    project_path: "{{ playbook_dir }}/terraform-scripts"
+    lock: false
+    force_init: yes
+    backend_config:
+      region: "{{region}}"
+    state: "{{tf_state}}"
+    variables:
+      instance_name: "{{instance_name}}"
+  register: tf_output
+
+- name: TerraForm Plan
+  terrafrom:
+    plan_file: '{{ playbook_dir }}/terraform-scripts/tfplan'
+  when: tf_state == "planned"
+
+- name: Print Outputs
+  debug:
+    var: tf_output
+
+- name: Deploying the Infra
+  add_host:
+    name: "{{ instance_name }}"
+    groups: just_created
+    ansible_user: root
+  when: tf_state == "present"
+
+- name: Demonstrating that Ansible can access Terraform variables if they exist in tf_output
+  debug:
+    msg: "This is a Terraform variable tf_output.outputs.address.value --> {{ tf_output.outputs.address.value }}"
+  ignore_errors: yes
